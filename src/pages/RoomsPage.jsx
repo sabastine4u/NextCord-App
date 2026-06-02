@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSocial } from '../context/SocialContext';
 import { useUI }     from '../context/UIContext';
+import { useAuthGuard } from '../hooks/useAuthGuard';
 import {
   SpeakerWaveIcon, UsersIcon, LockClosedIcon,
   PlayIcon, PlusIcon, StarIcon,
@@ -19,7 +20,9 @@ const CATEGORY_FILTERS = [
 export default function RoomsPage() {
   const { rooms, joinedRooms, joinRoom, leaveRoom } = useSocial();
   const { openModal } = useUI();
+  const guard = useAuthGuard();
   const [filter, setFilter] = useState('all');
+  const handleCreateRoom = guard(() => openModal('createRoom'), 'create rooms');
 
   const filtered = filter === 'all' ? rooms : rooms.filter(r => r.category === filter);
   const liveRooms   = filtered.filter(r => r.isLive);
@@ -31,7 +34,7 @@ export default function RoomsPage() {
         title="Rooms & Live"
         subtitle="Join live conversations or create your own room"
         action={
-          <button className="btn btn-primary" onClick={() => openModal('createRoom')}>
+          <button className="btn btn-primary" onClick={handleCreateRoom}>
             <PlusIcon style={{ width: 15, height: 15 }} /> Create Room
           </button>
         }
@@ -69,7 +72,7 @@ export default function RoomsPage() {
       )}
 
       {filtered.length === 0 && (
-        <EmptyState icon="🎙️" title="No rooms found" description="Create the first room in this category!" action={<button className="btn btn-primary" onClick={() => openModal('createRoom')}>Create Room</button>} />
+        <EmptyState icon="🎙️" title="No rooms found" description="Create the first room in this category!" action={<button className="btn btn-primary" onClick={handleCreateRoom}>Create Room</button>} />
       )}
     </div>
   );

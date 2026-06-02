@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useSocial } from '../context/SocialContext';
 import { useUI }     from '../context/UIContext';
+import { useAuthGuard } from '../hooks/useAuthGuard';
 import {
   UsersIcon, LockClosedIcon, GlobeAltIcon, PlusIcon,
   ShieldCheckIcon,
@@ -17,7 +18,9 @@ const TABS = [
 export default function GroupsPage() {
   const { groups, joinedGroups, joinGroup, leaveGroup } = useSocial();
   const { openModal } = useUI();
+  const guard = useAuthGuard();
   const [tab, setTab] = useState('all');
+  const handleCreateGroup = guard(() => openModal('createGroup'), 'create groups');
 
   const shown = tab === 'mine'
     ? groups.filter(g => joinedGroups.has(g.id))
@@ -29,7 +32,7 @@ export default function GroupsPage() {
         title="Groups"
         subtitle="Find your community or start your own"
         action={
-          <button className="btn btn-primary" onClick={() => openModal('createGroup')}>
+          <button className="btn btn-primary" onClick={handleCreateGroup}>
             <PlusIcon style={{ width: 15, height: 15 }} /> Create Group
           </button>
         }
@@ -54,7 +57,7 @@ export default function GroupsPage() {
           description={tab === 'mine' ? "Discover and join groups to connect with like-minded people." : "Create the first group!"}
           action={tab === 'mine'
             ? <button className="btn btn-primary" onClick={() => setTab('all')}>Discover Groups</button>
-            : <button className="btn btn-primary" onClick={() => openModal('createGroup')}>Create Group</button>
+            : <button className="btn btn-primary" onClick={handleCreateGroup}>Create Group</button>
           }
         />
       ) : (

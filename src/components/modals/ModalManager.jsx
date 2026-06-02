@@ -3,13 +3,15 @@ import { Modal, TagList, RatingStars } from '../ui/UIComponents';
 import { useUI }     from '../../context/UIContext';
 import LoginPromptModal from './LoginPromptModal';
 import { useSocial } from '../../context/SocialContext';
+import { useAuth } from '../../context/AuthContext';
 import { formatCount } from '../../utils/formatters';
 import { LockClosedIcon, GlobeAltIcon, StarIcon, CheckIcon } from '@heroicons/react/24/outline';
 
 // ── CreateRoomModal ────────────────────────────────────────────────────────────
 export function CreateRoomModal() {
-  const { activeModal, closeModal } = useUI();
+  const { activeModal, closeModal, promptLogin } = useUI();
   const { createRoom } = useSocial();
+  const { isAuthenticated } = useAuth();
 
   const [form, setForm] = useState({
     name: '', description: '', category: 'Technology',
@@ -20,6 +22,11 @@ export function CreateRoomModal() {
 
   const handleSubmit = () => {
     if (!form.name.trim()) return;
+    if (!isAuthenticated) {
+      closeModal();
+      promptLogin('create rooms');
+      return;
+    }
     createRoom({ ...form, tags: [form.category] });
     closeModal();
     setForm({ name: '', description: '', category: 'Technology', maxParticipants: 200, isPremium: false, color: 'from-indigo-600 to-purple-700' });
@@ -79,8 +86,9 @@ export function CreateRoomModal() {
 
 // ── CreateGroupModal ───────────────────────────────────────────────────────────
 export function CreateGroupModal() {
-  const { activeModal, closeModal } = useUI();
+  const { activeModal, closeModal, promptLogin } = useUI();
   const { createGroup } = useSocial();
+  const { isAuthenticated } = useAuth();
 
   const [form, setForm] = useState({
     name: '', description: '', category: 'Technology', isPrivate: false, tags: [],
@@ -99,6 +107,11 @@ export function CreateGroupModal() {
 
   const handleSubmit = () => {
     if (!form.name.trim()) return;
+    if (!isAuthenticated) {
+      closeModal();
+      promptLogin('create groups');
+      return;
+    }
     createGroup(form);
     closeModal();
     setForm({ name: '', description: '', category: 'Technology', isPrivate: false, tags: [] });
@@ -256,8 +269,9 @@ export function SubscribeModal() {
 
 // ── CreatePostModal ────────────────────────────────────────────────────────────
 export function CreatePostModal() {
-  const { activeModal, closeModal } = useUI();
+  const { activeModal, closeModal, promptLogin } = useUI();
   const { addPost } = useSocial();
+  const { isAuthenticated } = useAuth();
   const [content, setContent] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState([]);
@@ -269,6 +283,11 @@ export function CreatePostModal() {
 
   const handlePost = () => {
     if (!content.trim()) return;
+    if (!isAuthenticated) {
+      closeModal();
+      promptLogin('create posts');
+      return;
+    }
     addPost(content, tags);
     closeModal();
     setContent(''); setTags([]); setTagInput('');

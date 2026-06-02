@@ -3,6 +3,7 @@ import { Bars3Icon, BellIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useAuth }   from '../../context/AuthContext';
 import { useSocial } from '../../context/SocialContext';
 import { useUI }     from '../../context/UIContext';
+import { useAuthGuard } from '../../hooks/useAuthGuard';
 
 
 const PAGE_TITLES = {
@@ -25,6 +26,7 @@ export default function Topbar() {
   const { currentUser }  = useAuth();
   const { unreadCount }  = useSocial();
   const { toggleSidebar, openModal } = useUI();
+  const guard = useAuthGuard();
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -68,7 +70,7 @@ export default function Topbar() {
         {createModal && (
           <button
             className="btn btn-primary btn-sm"
-            onClick={() => openModal(createModal)}
+            onClick={guard(() => openModal(createModal), createModal === 'createRoom' ? 'create rooms' : 'create groups')}
             style={{ gap: 5 }}
           >
             <PlusIcon style={{ width: 14, height: 14 }} />
@@ -76,7 +78,7 @@ export default function Topbar() {
           </button>
         )}
         {pathname === '/' && (
-          <button className="btn btn-primary btn-sm" onClick={() => openModal('post')}>
+          <button className="btn btn-primary btn-sm" onClick={guard(() => openModal('post'), 'create posts')}>
             <PlusIcon style={{ width: 14, height: 14 }} />
             Post
           </button>
